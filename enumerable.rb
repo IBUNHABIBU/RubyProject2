@@ -75,3 +75,14 @@ module Enumerable
   end   
 end
 
+def multiply_els(arr)
+  result = 1
+  for i in arr
+    result *= 1
+  end
+  result
+end
+
+my_proc = Proc.new{|num| num*2}
+a = [1,2,3].my_each(&my_proc)
+puts a
