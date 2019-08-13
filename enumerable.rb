@@ -8,9 +8,7 @@ module Enumerable
   end
 
   def my_each_with_index
-    for element in self
-      yield(self.index[element], element)
-    end
+    self.size.times{|index| yield(self[index], index)}
   end
 
   def my_select
@@ -30,9 +28,24 @@ module Enumerable
   end
 
   def my_none?
-    self.my_any? {|elem| yield(elem)} == false ? true : false
+    self.my_each{|el|
+      if yield(el)
+        result = false
+      else
+        result = true
+      end
+     }
   end
-
+  
+  def my_any?
+    self.my_each{|el|
+       if yield(el)
+        return true
+       else
+        return false 
+       end
+      }
+  end
  
   def my_count
     return self.size unless block.given?
@@ -48,30 +61,36 @@ end
   
 def my_map(*procs)
     result = []
-    if procs.count == 0
-      self.my_each do |x|
+     if procs.count == 0
+        self.my_each do |x|
         result << yield(x)
-    else
+     else
       procs = procs[0]
       self.my_each(&proc)
-    end
+      end
+      result
+     end
+end
+
+
+def my_inject(initial = nil)
+   if initial == nil
+    accumulator = self.first
+   else 
+    accumulator = initial
+   end 
+
+   self.my_each{|el|
+    accumulator = yield(accumulator, element)
+  }
+  return accumulator
+end
+
+  def multiply_els(arr)
+    return arr.my_inject(1){|total,num| total*num }
   end
 end
 
-def my_inject(init=0)
-  result = self[init]
-  self[init..-1].size.times do |index| 
-    result = yield(result, self[index + 1]) if self[index + 1]
-    end
-  result
-  end 
-end
-
-def multiply_els(arr)
-  arr.my_inject
-  arr
-end
-
-my_proc = Proc.new{|num| num*2}
-a = [1,2,3].my_each(&my_proc)
+my_proc = Proc.new{|str| str.upcase}
+a = [1,2,3].my_map(&my_proc)
 puts a
