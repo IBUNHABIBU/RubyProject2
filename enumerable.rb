@@ -5,49 +5,48 @@ module Enumerable
       yield(self[count])
       count += 1
     end
+  end
 
-  def my_each_width_index
-    index = 0
+  def my_each_with_index
     for element in self
-      yield(self[element], element)
-      index += 1
+      yield(self.index[element], element)
+    end
   end
 
   def my_select
     result= []
-    self.my_each{|element|
+    self.my_each  do |element|
       if yield(element)
         result << element
       end
-    }  
+    end 
+    result 
   end
 
   def my_all?
-    result = false
-    self.my_each{|element| yield(element) ? result = true : result= false}
-    result
-  end
-
-  def my_any?
-    result = false
-    self.my_each{|element| result = true if yield(element)}
+    self.my_each { |elem| return false if yield(elem) == false}
+    true
+    end
   end
 
   def my_none?
-    result = true
-    self.my_each{|element| result = false if  yield (element)}
+    self.my_any? {|elem| yield(elem)} == false ? true : false
   end
 
-  def count
+ 
+  def my_count
+    return self.size unless block.given?
     num = 0
     num.my_each do |element|
       if yield(element)
         num += 1
       end
-      nums
     end
+      nums
+   end
+end
   
-  def my_map(*procs)
+def my_map(*procs)
     result = []
     if procs.count == 0
       self.my_each do |x|
@@ -57,30 +56,20 @@ module Enumerable
       self.my_each(&proc)
     end
   end
+end
 
-  def my_inject(*start_num)
-    result = 0
-    if start_num.count == 0
-      self.my_each do |el|
-        result = yield(result, el)
-      return result
-      end
-    else
-      start_num = start_num[0]
-      self.my_each do |x|
-        start_num = yield (start_num, x)
-      return start_num
-      end
+def my_inject(init=0)
+  result = self[init]
+  self[init..-1].size.times do |index| 
+    result = yield(result, self[index + 1]) if self[index + 1]
     end
-  end   
+  result
+  end 
 end
 
 def multiply_els(arr)
-  result = 1
-  for i in arr
-    result *= 1
-  end
-  result
+  arr.my_inject
+  arr
 end
 
 my_proc = Proc.new{|num| num*2}
